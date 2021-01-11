@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const fileUpload = require('express-fileupload')
 const router = require('./src/routes');
-
+const datebase = require('./database');
 const server = express();
 
 server.use(cors());
