@@ -1,7 +1,11 @@
+const { validationResult, matchedData } = require('express-validator');
 const State = require('../models/State');
 const User = require('../models/User');
 const Ad = require('../models/Ad');
 const Category = require('../models/Category');
+const mongoose  = require('mongoose');
+const bcrypt = require('bcrypt');
+
 
 module.exports = {
     getState: async (req, res) =>{
@@ -12,7 +16,7 @@ module.exports = {
         let { token } = req.query;
         const user = await User.findOne({ token });
         const state = await State.findById(user.state);
-        const ads = await Ad.find({idUser: user._id.toString()});
+        const ads = await Ad.find({ idUser: user._id.toString() });
 
         let adList = [];
 
@@ -31,6 +35,38 @@ module.exports = {
         });
     },
     editAction: async (req, res) =>{
-        
+        const errors = validationResult(req);
+
+        if(!errors.isEmpty()){
+            res.json({ return: {
+                error: errors.mapped()}
+            });
+            return;
+        }
+
+        const { name, token, password, state } = matchedData(req);
+
+        let updates = {};
+
+        if(name){
+            updates.name = name;
+        }
+        if(state){
+            if(mongoose.Types.ObjectId.isValid(state)){
+                if(!await State.findById(state)){
+                    res.json({ return:{ error: 'Estado não encontrado' } });
+                }
+                updates.state = state;
+            }else{
+                res.json({ return:{ error: 'Estado não encontrado' } });
+            }
+        }
+        if(password){
+            updates.passwordHash = await bcrypt.hash(password, 10);
+        }
+
+        await User.findOneAndUpdate({ token }, { $set: updates})
+
+        res.json({return: 'ok!'});
     }
 }
