@@ -9,30 +9,27 @@ module.exports = {
         const errors = validationResult(req);
 
         if(!errors.isEmpty()){
-            res.json({ return: {
+            return res.json({ return: {
                 error: errors.mapped()}
             });
-            return;
         }
         
         const data = matchedData(req);
         const user = await User.findOne({ email: data.email })
 
         if(!user){
-            res.json({
+            return res.json({
                 return: {
-                    error: {email:{ message: 'E-mail e/ou senha inválidos'}}
+                    error: {message: 'E-mail e/ou senha inválidos'}
                 }
             }); 
-            return;
         }
         if(!await bcrypt.compare(data.password, user.passwordHash)){
-            res.json({
+            return res.json({
                 return: {
-                    error: {email:{ message: 'E-mail e/ou senha inválidos'}}
+                    error:  {message: 'E-mail e/ou senha inválidos'}
                 }
             }); 
-            return;
         }
 
         const payload = (Date.now + Math.random()).toString();
@@ -44,7 +41,7 @@ module.exports = {
 
         let {email} = user;
 
-        res.json({ return: {
+        return res.json({ return: {
             token,
             email
         }});
@@ -54,37 +51,33 @@ module.exports = {
         const errors = validationResult(req);
 
         if(!errors.isEmpty()){
-            res.json({ return: {
+            return res.json({ return: {
                 error: errors.mapped()}
             });
-            return;
         }
         const data = matchedData(req);
 
         if(await User.findOne({ email: data.email })){
-            res.json({
+            return res.json({
                 return: {
                     error: {email:{ message: 'E-mail já cadastrado'}}
                 }
-            }); 
-            return;
+            });
         }
         if(mongoose.Types.ObjectId.isValid(data.state)){
             if(!await State.findOne({ _id: data.state})){
-                res.json({
+                return res.json({
                     return: { 
                         error: {state:{ message: 'Estado Não encontrado'}}
                     }        
                 });
-                return;
             }
         }else{
-            res.json({
+            return res.json({
                 return: { 
                     error: {state:{ message: 'codigo de estado inválido'}}
                 }
             });
-            return;
         }
 
         const passwordHash = await bcrypt.hash(data.password, 10);
@@ -103,6 +96,7 @@ module.exports = {
 
         await newUser.save();
 
-        res.json({ return: newUser});
+        return res.json({ return: newUser});
+        
     }
 }

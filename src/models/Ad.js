@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const modelSchema = mongoose.Schema({
-    idUser: String,
+    idUser: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User'
+    },
     state: String,
     category: String,
     images: [Object],
