@@ -40,7 +40,10 @@ module.exports = {
             })
         };
 
-        const ad = await Ad.findById(idAd);
+        const ad = await Ad.findById(idAd)
+        .populate({ path: 'idUser', select: 'name' })
+        .populate({ path: 'state', select: 'name' })
+        .populate({ path: 'category', select: 'name' });
 
         return res.json({
             return: {
@@ -50,7 +53,10 @@ module.exports = {
     },
     getList: async (req, res) =>{
 
-        const ads = await Ad.find().populate('idUser');
+        const ads = await Ad.find()
+        .populate({ path: 'idUser', select: 'name' })
+        .populate({ path: 'state', select: 'name' })
+        .populate({ path: 'category', select: 'name' });;
         return res.json({
             return: ads
         })
@@ -102,10 +108,34 @@ module.exports = {
         });
     },
     editAction: async (req, res) =>{
-        return res.json({
-            return: {
-                message: 'ok!'
-            }
-        })
+        const error = validationResult(req);
+
+        if(!error.isEmpty()){
+            return res.json({
+                return: {
+                    error: error.mapped()
+                }
+            });
+        }
+
+        const { _id, title, description, priceNegotiable, price, } = matchedData(req);
+        let updates = {};
+
+        if(title){
+            updates.title = title;
+        }
+        if(description){
+            updates.description = description;
+        }
+        if(price){
+            updates.price = price;
+        }
+        if(priceNegotiable){
+            updates.priceNegotiable = priceNegotiable
+        }
+
+        await Ad.findByIdAndUpdate({ _id }, {$set: updates});
+
+        return res.redirect(`${process.env.BASE}/api/ad/item?idAd=${_id}`);
     },
 }

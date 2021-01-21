@@ -8,6 +8,7 @@ const AdsController = require('./controllers/AdsController');
 const AuthValidator = require('./validators/AuthValidator');
 const UserValidator = require('./validators/UserValidator');
 const AdValidador = require('./validators/AdValidator');
+const AdMiddleware = require('./middlewares/AdMiddleware');
 
 router.get('/states', UserController.getState);
 
@@ -22,6 +23,6 @@ router.get('/categories', AdsController.getCategories);
 router.post('/ad/add', Auth.private, AdValidador.add, AdsController.addAction);
 router.get('/ad/list', AdsController.getList);
 router.get('/ad/item', AdValidador.getItem, AdsController.getItem);
-router.post('/ad/:id', Auth.private, AdsController.editAction);
+router.post('/ad/edit', Auth.private, AdMiddleware.validateUser, AdValidador.edit, AdsController.editAction);
 
 module.exports = router

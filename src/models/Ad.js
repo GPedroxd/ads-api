@@ -7,8 +7,14 @@ const modelSchema = mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'User'
     },
-    state: String,
-    category: String,
+    state:  {
+        type: mongoose.Types.ObjectId,
+        ref: 'State'
+    },
+    category:  {
+        type: mongoose.Types.ObjectId,
+        ref: 'Category'
+    },
     images: [Object],
     dateCreated: Date,
     title: String,
